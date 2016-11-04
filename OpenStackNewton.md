@@ -1,11 +1,11 @@
 Title: OpenStack構築手順書 Newton版
 Company: 日本仮想化技術<br>
-Version:0.9.0<br>
+Version:0.9.0-2<br>
 
 # OpenStack構築手順書 Newton版
 
 <div class="title">
-バージョン：0.9.0 (2016/10/25作成) <br>
+バージョン：0.9.0-2 (2016/11/04作成) <br>
 日本仮想化技術株式会社
 </div>
 
