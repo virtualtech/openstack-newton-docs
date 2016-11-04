@@ -16,12 +16,12 @@ Version:0.9.0<br>
 |バージョン|更新日|更新内容|
 |:---|:---|:---|
 |0.9.0|2016/10/25|Newton版執筆開始|
-
+|0.9.0-2|2016/11/04|軽微な修正|
 
 ````
 筆者注:このドキュメントに対する提案や誤りの指摘は
 Issue登録か、日本仮想化技術までメールにてお願いします。
-https://github.com/virtualtech/openstack-mitaka-docs/issues
+https://github.com/virtualtech/openstack-newton-docs/issues
 ````
 
 <!-- BREAK -->
