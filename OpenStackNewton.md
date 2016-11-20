@@ -70,7 +70,7 @@ https://wiki.ubuntu.com/Kernel/LTSEnablementStack
 
 本書はOpenStack環境をController,Computeの2台のサーバー上に構築することを想定しています。
 
-| コントローラー | コンピュート 
+| コントローラー | コンピュート
 | -------------- | --------------
 | RabbitMQ       | Linux KVM
 | NTP            | Nova Compute
@@ -131,7 +131,7 @@ Ubuntu 16.04ではNICのデバイス名の命名規則が変わりました。
 
 2台のサーバーに対し、Ubuntu Serverをインストールします。要点は以下の通りです。
 
-+ 優先ネットワークインターフェースをens3(最初の方のNIC)に指定 
++ 優先ネットワークインターフェースをens3(最初の方のNIC)に指定
  + インターネットへ接続するインターフェースはens3を使用するため、インストール中はens3を優先ネットワークとして指定
 + OSは最小インストール
  + パッケージ選択ではOpenSSH serverを追加
@@ -329,10 +329,10 @@ controller
 
 #### 2-2-2 各ノードの/etc/hostsの設定
 
-すべてのノードで127.0.1.1の行をコメントアウトします。
+すべてのノードで127.0.0.1の行をコメントアウトします。
 またホスト名で名前引きできるように設定します。
 
-127.0.1.1の行はUbuntuの場合、デフォルトで設定されています。
+127.0.0.1の行はUbuntuの場合、デフォルトで設定されています。
 memcachedをセットアップするノードでこの設定がされたままだと正常に動作しませんので注意してください。
 
 （例）コントローラーノードの場合
@@ -349,7 +349,7 @@ controller# vi /etc/hosts
 
 ### 2-3 リポジトリーの設定とパッケージの更新
 
-コントローラーノードとコンピュートノードで以下のコマンドを実行し、Mitaka向けUbuntu Cloud Archiveリポジトリーを登録します。
+コントローラーノードとコンピュートノードで以下のコマンドを実行し、Newton向けUbuntu Cloud Archiveリポジトリーを登録します。
 
 ```
 # sudo add-apt-repository cloud-archive:newton
@@ -682,7 +682,7 @@ connection = mysql+pymysql://keystone:password@controller/keystone  ← 追記
 
 [token]
 ...
-provider = fernet          ← 追記 
+provider = fernet          ← 追記
 ```
 
 次のコマンドで正しく設定を行ったか確認します。
@@ -1668,7 +1668,7 @@ neutron.confの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
 
 ```
-controller# vi /etc/neutron/neutron.conf 
+controller# vi /etc/neutron/neutron.conf
 
 [DEFAULT]
 ...
@@ -1795,7 +1795,7 @@ l2_population = True                       ←追記 ※
 [securitygroup]
 ...
 enable_security_group = True        ←コメントをはずす
-firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver 
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 ↑ 追記
 ```
 
@@ -1853,7 +1853,7 @@ external_network_bridge =
 + DHCPエージェントの設定
 
 ```
-controller# vi /etc/neutron/dhcp_agent.ini 
+controller# vi /etc/neutron/dhcp_agent.ini
 
 [DEFAULT]  (最終行に以下を追記)
 ...
@@ -2100,7 +2100,7 @@ compute# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ネットワーク設定を反映させるため、コンピュートノードのNeutronと関連のサービスを再起動します。
 
 ```
-compute# service nova-compute restart 
+compute# service nova-compute restart
 compute# service neutron-linuxbridge-agent restart
 ```
 
@@ -2157,7 +2157,7 @@ controller# apt-get install openstack-dashboard
 すでにいくつかの設定は行われているので同じように設定がされているか確認し、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
 
 ```
-controller# vi /etc/openstack-dashboard/local_settings.py 
+controller# vi /etc/openstack-dashboard/local_settings.py
 ...
 WEBROOT = '/horizon/'
 LOGIN_URL = WEBROOT + 'auth/login/'
@@ -2384,8 +2384,8 @@ OpenStackではインスタンスへのアクセスはデフォルトで公開�
 Floating IPを割り当てて、かつセキュリティグループの設定を適切に行っていれば、リモートアクセスできるようになります。セキュリティーグループでSSHを許可した場合、端末からSSH接続が可能になります（下記は実行例）。
 
 ```
-client$ ping -c4 instance-floating-ip 
-client$ ssh -i mykey.pem cloud-user@instance-floating-ip 
+client$ ping -c4 instance-floating-ip
+client$ ssh -i mykey.pem cloud-user@instance-floating-ip
 ```
 
 その他、適切なポートを開放してインスタンスへのPingを許可したり、インスタンスでWebサーバーを起動して外部PCからアクセスしてみましょう。
