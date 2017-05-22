@@ -4,6 +4,6 @@ OpenStack Newton 構築手順書のソースです。
 
 - <https://github.com/virtualtech/openstack-newton-docs/issues>
 
-PDF版は下記のURLからダウンロード可能です。
+PDF版は下記のURLからダウンロードできるようになる予定です。
 
 - <http://enterprisecloud.jp/installguide-openstack/>
