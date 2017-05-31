@@ -330,10 +330,10 @@ controller
 
 #### 2-2-2 各ノードの/etc/hostsの設定
 
-すべてのノードで127.0.1.1の行をコメントアウトします。
+すべてのノードで127.0.0.1の行をコメントアウトします。
 またホスト名で名前引きできるように設定します。
 
-127.0.1.1の行はUbuntuの場合、デフォルトで設定されています。
+127.0.0.1の行はUbuntuの場合、デフォルトで設定されています。
 memcachedをセットアップするノードでこの設定がされたままだと正常に動作しませんので注意してください。
 
 （例）コントローラーノードの場合
@@ -2161,7 +2161,7 @@ controller# apt-get install openstack-dashboard
 すでにいくつかの設定は行われているので同じように設定がされているか確認し、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
 
 ```
-controller# vi /etc/openstack-dashboard/local_settings.py 
+controller# vi /etc/openstack-dashboard/local_settings.py
 ...
 WEBROOT = '/horizon/'
 LOGIN_URL = WEBROOT + 'auth/login/'
