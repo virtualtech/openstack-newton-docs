@@ -1,7 +1,7 @@
 ---
 documentclass: ltjsarticle
 title: OpenStack 構築手順書 Newton版
-date: 0.9.0-3 (2017/08/04)
+date: 0.9.0-3 (2017/09/05)
 author: 日本仮想化技術
 toc: yes
 output:
@@ -96,7 +96,7 @@ https://wiki.ubuntu.com/Kernel/LTSEnablementStack
 IPアドレスは以下の構成で構築されている前提で解説します。
 
 |各種設定|ネットワーク|
-|:---|:---|:---|
+|:---|:---|
 |ネットワーク|10.0.0.0/24|
 |ゲートウェイ|10.0.0.1|
 |ネームサーバー|10.0.0.1|
