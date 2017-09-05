@@ -1,50 +1,49 @@
-Title: OpenStack構築手順書 Newton版
-Company: 日本仮想化技術<br>
-Version:0.9.0-4<br>
+---
+documentclass: ltjsarticle
+title: OpenStack 構築手順書 Newton版
+date: 0.9.0-3 (2017/08/04)
+author: 日本仮想化技術
+toc: yes
+output:
+  pdf_document:
+    latex_engine: lualatex
+    keep_tex: true
+header-includes:
+  - \usepackage[margin=1in]{geometry}
+---
 
-# OpenStack構築手順書 Newton版
+\clearpage
 
-<div class="title">
-バージョン：0.9.0-4 (2017/05/22作成) <br>
-日本仮想化技術株式会社
-</div>
-
-<!-- BREAK -->
-
-## 変更履歴
+変更履歴
 
 |バージョン|更新日|更新内容|
 |:---|:---|:---|
 |0.9.0|2016/10/25|Newton版執筆開始|
 |0.9.0-2|2016/11/04|軽微な修正|
-|0.9.0-3|2016/11/21|pull#2で指摘のあった誤記の修正|
-|0.9.0-4|2017/05/22|表示崩れの修正、NTPサーバーの同期について追記|
+|0.9.0-3|2017/09/05|軽微な修正|
 
-````
-筆者注:このドキュメントに対する提案や誤りの指摘は
-Issue登録か、日本仮想化技術までメールにてお願いします。
+```
+筆者注:
+このドキュメントに対する提案や誤りの指摘はIssue登録か、
+日本仮想化技術までメールにてお願いします。
 https://github.com/virtualtech/openstack-newton-docs/issues
-````
+```
 
-<!-- BREAK -->
 
-## 目次
+\clearpage
 
-<!--TOC max3-->
-<!-- BREAK -->
+# OpenStack 構築構築
 
-# Part.1 OpenStack 構築編
-<br>
 本章は、OpenStack Foundationが公開している公式ドキュメント「OpenStack Installation Guide for Ubuntu 16.04」の内容から、「Keystone,Glance,Nova,Neutron,Horizon」までの構築手順をベースに加筆したものです。
 OpenStackをUbuntu Server 16.04 ベースで構築する手順を解説しています。
 
 Canonical社が提供するCloud Archiveリポジトリーを使って、OpenStackの最新版Newtonを導入しましょう。
 
-<!-- BREAK -->
+\clearpage
 
-## 1. 構築する環境について
+## 構築する環境について
 
-### 1-1 環境構築に使用するOS
+### 環境構築に使用するOS
 
 本書はCanonicalのUbuntu ServerとCloud Archiveリポジトリーのパッケージを使って、OpenStack Newtonを構築する手順を解説したものです。
 
@@ -56,20 +55,25 @@ Ubuntu 15.04以降のUbuntuはSystemdに移行しています。そのため本�
 
 - <http://releases.ubuntu.com/releases/xenial/ubuntu-16.04.1-server-amd64.iso>
 
-````
-筆者注:もしここで想定するUbuntuやカーネルバージョン以外で何らかの事象が発生した場合も、以下までご報告ください。動作可否情報をGithubで共有できればと思います。
+
+```
+筆者注:
+もしここで想定するUbuntuやカーネルバージョン以外で何らかの事象が発生した場合も、
+以下までご報告ください。動作可否情報をGithubで共有できればと思います。
+
 https://github.com/virtualtech/openstack-newton-docs/issues
 
 Ubuntu LTSとカーネルの関係については次のWikiをご覧ください。
+
 https://wiki.ubuntu.com/Kernel/LTSEnablementStack
-````
+```
 
 
-<!-- BREAK -->
+\clearpage
 
-### 1-2 作成するサーバー（ノード）
+### 作成するサーバー（ノード）
 
-本書はOpenStack環境をController,Computeの2台のサーバー上に構築することを想定しています。公式のインストールガイドの「ネットワークオプション2: セルフサービスネットワーク」を想定した環境を構築します。
+本書はOpenStack環境をController,Computeの2台のサーバー上に構築することを想定しています。
 
 | コントローラー | コンピュート
 | -------------- | --------------
@@ -84,32 +88,31 @@ https://wiki.ubuntu.com/Kernel/LTSEnablementStack
 | L3 Agent
 | DHCP Agent
 | Metadata Agent
-| Cinder
 
-<!-- BREAK -->
+\clearpage
 
-### 1-3 ネットワークセグメントの設定
+### ネットワークセグメントの設定
 
-IPアドレスは以下の構成で構築されている前提で解説します。よりシンプルにするため、アイングルネットワークの上で環境を動かすのを想定します。
+IPアドレスは以下の構成で構築されている前提で解説します。
 
 |各種設定|ネットワーク|
-|:---|:---|
+|:---|:---|:---|
 |ネットワーク|10.0.0.0/24|
 |ゲートウェイ|10.0.0.1|
 |ネームサーバー|10.0.0.1|
 
-### 1-4 各ノードのネットワーク設定
+### 各ノードのネットワーク設定
 
 各ノードのネットワーク設定は以下の通りです。
-Ubuntu 16.04ではNICのデバイス名の命名規則が従来から変わりました。
+Ubuntu 16.04ではNICのデバイス名の命名規則が変わりました。
 物理サーバー上のNICはハードウェアとの接続によってensXやenoX、enpXsYのような命名規則になっています。なお、仮想マシンやコンテナーではethXと認識されるようです。
 
-本例ではens3として認識されているのを想定していますので、デバイス名は実際の環境に合わせて適宜読み替えてください。
+本例ではens3として認識されているのを想定していますので、実際の環境に合わせて適宜読み替えてください。
 
 + コントローラーノード
 
 |インターフェース|ens3|
-|:---|:---|
+|:---|:---|:---|
 |IPアドレス|10.0.0.101|
 |ネットマスク|255.255.255.0|
 |ゲートウェイ|10.0.0.1|
@@ -118,25 +121,24 @@ Ubuntu 16.04ではNICのデバイス名の命名規則が従来から変わり�
 + コンピュートノード
 
 |インターフェース|ens3|
-|:---|:---|
+|:---|:---|:---|
 |IPアドレス|10.0.0.102|
 |ネットマスク|255.255.255.0|
 |ゲートウェイ|10.0.0.1|
 |ネームサーバー|10.0.0.1|
 
-<!-- BREAK -->
+\clearpage
 
-### 1-5 Ubuntu Serverのインストール
+## Ubuntu Serverのインストール
 
-#### 1-5-1 インストール
+### インストール
 
 2台のサーバーに対し、Ubuntu Serverをインストールします。要点は以下の通りです。
 
 + 優先ネットワークインターフェースをens3(最初の方のNIC)に指定
- + インターネットへ接続するインターフェースはens3を使用するため、インストール中はens3を優先ネットワークとして指定
+    + インターネットへ接続するインターフェースはens3を使用するため、インストール中はens3を優先ネットワークとして指定
 + OSは最小インストール
- + パッケージ選択ではOpenSSH serverを追加
-
+    + パッケージ選択ではOpenSSH serverを追加
 
 【インストール時の設定パラメータ例】
 
@@ -157,7 +159,7 @@ Ubuntu 16.04ではNICのデバイス名の命名規則が従来から変わり�
 
 パスワードを入力後、Weak passwordという警告が出た場合はYesを選択するか、警告が出ないようなより複雑なパスワードを設定してください。
 
-<!-- BREAK -->
+\clearpage
 
 画面の指示に従ってセットアップを続けます。
 
@@ -177,16 +179,18 @@ Ubuntu 16.04ではNICのデバイス名の命名規則が従来から変わり�
 |インストール完了|Continueを選択|
 
 ```
-筆者注:
-Ubuntuインストーラーは基本的にパッケージのインストール時にインターネット接続が必要です。
+筆者注
+Ubuntuインストーラーは基本的にインストール時にインターネット接続が必要です。
 
 Ubuntuインストール時に選択した言語がインストール後も使われます。
-Ubuntu Serverで日本語の言語を設定した場合、標準出力や標準エラー出力が文字化けするなど様々な問題がおきますので、言語は英語を設定されることを推奨します。
+
+Ubuntu Serverで日本語の言語を設定した場合、標準出力や標準エラー出力が
+文字化けするため、言語は英語を設定されることを推奨します。
 ```
 
-<!-- BREAK -->
+\clearpage
 
-#### 1-5-2 プロキシーの設定
+### プロキシーの設定
 
 外部ネットワークとの接続にプロキシーの設定が必要な場合は、aptコマンドを使ってパッケージの照会やダウンロードを行うために次のような設定をする必要があります。
 
@@ -212,9 +216,9 @@ Acquire::https::proxy "https://proxy.example.com:8080/";
 - <https://help.ubuntu.com/community/AptGet/Howto>
 - <http://gihyo.jp/admin/serial/01/ubuntu-recipe/0331>
 
-<!-- BREAK -->
+\clearpage
 
-### 1-6 Ubuntu Serverへのログインとroot権限
+### Ubuntu Serverへのログインとroot権限
 
 Ubuntuはデフォルト設定でrootユーザーの利用を許可していないため、root権限が必要となる作業は以下のように行ってください。
 
@@ -222,7 +226,7 @@ Ubuntuはデフォルト設定でrootユーザーの利用を許可していな�
 + root権限が必要な作業を実行する場合には、sudoを実行したいコマンドの前につけて実行する。
 + root権限で連続して作業したい場合には、sudo -iコマンドでシェルを起動する。
 
-### 1-7 設定ファイル等の記述について
+## 設定ファイル等の記述について
 
 + 設定ファイルは特別な記述が無い限り、必要な設定を抜粋したものです。
 + 特に変更の必要がない設定項目は省略されています。
@@ -253,9 +257,9 @@ admin_tenant_name = service ← 変更
 admin_user = glance ← 変更
 admin_password = password ← 変更
 ```
-<!-- BREAK -->
+\clearpage
 
-## 2. OpenStackインストール前の設定
+# OpenStackインストール前の設定
 
 OpenStackパッケージのインストール前に各々のノードで以下の設定を行います。
 
@@ -270,13 +274,13 @@ OpenStackパッケージのインストール前に各々のノードで以下�
 + 環境変数設定ファイルの作成（コントローラーノードのみ）
 + memcachedのインストールと設定（コントローラーノードのみ）
 
-<!-- BREAK -->
+\clearpage
 
-### 2-1 ネットワークデバイスの設定
+## ネットワークデバイスの設定
 
 各ノードの/etc/network/interfacesを編集し、IPアドレスの設定を行います。
 
-#### 2-1-1 コントローラーノードのIPアドレスの設定
++ コントローラーノードのIPアドレスの設定
 
 ```
 controller# vi /etc/network/interfaces
@@ -288,7 +292,7 @@ iface ens3 inet static
       dns-nameservers 10.0.0.1
 ```
 
-#### 2-1-2 コンピュートノードのIPアドレスの設定
++ コンピュートノードのIPアドレスの設定
 
 ```
 compute# vi /etc/network/interfaces
@@ -299,9 +303,9 @@ iface ens3 inet static
       gateway 10.0.0.1
       dns-nameservers 10.0.0.1
 ```
-<!-- BREAK -->
+\clearpage
 
-#### 2-1-3 ネットワークの設定を反映
++ ネットワークの設定を反映
 
 各ノードで変更した設定を反映させるため、ホストを再起動します。
 
@@ -309,12 +313,12 @@ iface ens3 inet static
 $ sudo reboot
 ```
 
-### 2-2 ホスト名と静的な名前解決の設定
+## ホスト名と静的な名前解決の設定
 
 ホスト名でノードにアクセスするにはDNSサーバーで名前解決する方法やhostsファイルに書く方法が挙げられます。
 本書では各ノードの/etc/hostsに各ノードのIPアドレスとホスト名を記述してhostsファイルを使って名前解決します。127.0.1.1の行はコメントアウトします。
 
-#### 2-2-1 各ノードのホスト名の設定
++ 各ノードのホスト名の設定
 
 各ノードのホスト名をhostnamectlコマンドを使って設定します。反映させるためには一度ログインしなおす必要があります。
 
@@ -326,9 +330,7 @@ controller# cat /etc/hostname
 controller
 ```
 
-<!-- BREAK -->
-
-#### 2-2-2 各ノードの/etc/hostsの設定
++ 各ノードの/etc/hostsの設定
 
 すべてのノードで127.0.1.1の行をコメントアウトします。
 またホスト名で名前引きできるように設定します。
@@ -346,11 +348,12 @@ controller# vi /etc/hosts
 10.0.0.102 compute
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 2-3 リポジトリーの設定とパッケージの更新
+## リポジトリーの設定とパッケージの更新
 
 コントローラーノードとコンピュートノードで以下のコマンドを実行し、Newton向けUbuntu Cloud Archiveリポジトリーを登録します。
+
 
 ```
 # sudo add-apt-repository cloud-archive:newton
@@ -365,6 +368,7 @@ gpg: /etc/apt/trustdb.gpg: trustdb created
 OK
 ```
 
+
 各ノードのシステムをアップデートします。Ubuntuではパッケージのインストールやアップデートの際にまず`apt-get update`を実行してリポジトリーの情報の更新が必要です。そのあと`apt-get -y dist-upgrade`でアップグレードを行います。カーネルの更新があった場合は再起動してください。
 
 なお、`apt-get update`は頻繁に実行する必要はありません。日をまたいで作業する際や、コマンドを実行しない場合にパッケージ更新やパッケージのインストールでエラーが出る場合は実行してください。以降の手順では`apt-get update`を省略します。
@@ -373,9 +377,9 @@ OK
 # apt-get update && apt-get dist-upgrade
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 2-4 OpenStackクライアントとMariaDBクライアントのインストール
+## OpenStackクライアントとMariaDBクライアントのインストール
 
 コントローラーノードでOpenStackクライアントとPython用のMySQL/MariaDBクライアントをインストールします。依存するパッケージは全てインストールします。
 
@@ -383,9 +387,9 @@ OK
 controller# apt-get install python-openstackclient python-pymysql
 ```
 
-### 2-5 時刻同期サーバーのインストールと設定
+## 時刻同期サーバーのインストールと設定
 
-#### 2-5-1 時刻同期サーバーChronyの設定
++ 時刻同期サーバーChronyの設定
 
 各ノードの時刻を同期するためにChronyをインストールします。
 
@@ -393,7 +397,7 @@ controller# apt-get install python-openstackclient python-pymysql
 # apt-get install chrony
 ```
 
-#### 2-5-2 コントローラーノードの時刻同期サーバーの設定
++ コントローラーノードの時刻同期サーバーの設定
 
 コントローラーノードで公開NTPサーバーと同期するNTPサーバーを構築します。
 適切な公開NTPサーバー(ex.ntp.nict.jp etc..)を指定します。ネットワーク内にNTPサーバーがある場合はそのサーバーを指定します。
@@ -404,9 +408,9 @@ controller# apt-get install python-openstackclient python-pymysql
 controller# service chrony restart
 ```
 
-<!-- BREAK -->
+\clearpage
 
-#### 2-5-3 その他ノードの時刻同期サーバーの設定
++ その他ノードの時刻同期サーバーの設定
 
 コンピュートノードでコントローラーノードと同期するNTPサーバーを構築します。
 
@@ -427,7 +431,7 @@ server controller iburst
 compute# service chrony restart
 ```
 
-#### 2-5-4 NTPサーバーの動作確認
+### NTPサーバーの動作確認
 
 構築した環境でコマンドを実行して、各NTPサーバーが同期していることを確認します。
 
@@ -455,16 +459,13 @@ MS Name/IP address         Stratum Poll Reach LastRx Last sample
 ^* controller                3   6    77    25   -509us[-1484us] +/-   13ms
 ```
 
-MSの部分が^*になれば正常にNTPサーバーと同期されています。ステータスがなかなか変わらない場合はファイアウォールでブロックされていないか確認してください。一度ntpdateコマンドなどで時刻を正確にしてからchronydを実行すると同期がうまくいくことがあります。
+\clearpage
 
-
-<!-- BREAK -->
-
-### 2-6 MariaDBのインストール
+## MariaDBのインストール
 
 コントローラーノードにデータベースサーバーのMariaDBをインストールします。
 
-#### 2-6-1 パッケージのインストール
+### パッケージのインストール
 
 apt-getコマンドでmariadb-serverパッケージをインストールします。
 
@@ -475,7 +476,7 @@ controller# apt-get install mariadb-server python-pymysql
 Ubuntu 16.04のMariaDBパッケージを使ってインストールした場合、パスワードの設定は求められません。
 設定が必要ならば、`mysql_secure_installation`コマンドを実行して設定してください。
 
-#### 2-6-2 MariaDBの設定を変更
+### MariaDBの設定を変更
 
 OpenStack用のMariaDB設定ファイル /etc/mysql/mariadb.conf.d/99-openstack.cnf を作成し、以下を設定します。
 
@@ -495,9 +496,9 @@ collation-server = utf8_general_ci
 character-set-server = utf8
 ```
 
-<!-- BREAK -->
+\clearpage
 
-#### 2-6-3 MariaDBサービスの再起動
+### MariaDBサービスの再起動
 
 変更した設定を反映させるためMariaDBのサービスを再起動します。
 
@@ -505,23 +506,23 @@ character-set-server = utf8
 controller# service mysql restart
 ```
 
-#### 2-6-4 MariaDBのセットアップ
+### MariaDBのセットアップ
 
 MariaDBデータベースのセキュリティーを設定するにはmysql_secure_installationコマンドを実行します。
 MariaDBのrootユーザーのパスワードを設定したり、デフォルトで作られるユーザーやデータベースの削除など行えますので必要に応じて行ってください。
 
-````
+```
 controller# mysql_secure_installation
-````
+```
 
-<!-- BREAK -->
+\clearpage
 
-### 2-7 RabbitMQのインストール
+## RabbitMQのインストール
 
 OpenStackは、オペレーションやステータス情報を各サービス間で連携するためにメッセージブローカーを使用しています。OpenStackではRabbitMQ、ZeroMQなど複数のメッセージブローカーサービスに対応しています。
 本書ではRabbitMQをインストールする例を説明します。
 
-#### 2-7-1 パッケージのインストール
+### パッケージのインストール
 
 コントローラーノードにrabbitmq-serverパッケージをインストールします。
 
@@ -529,7 +530,7 @@ OpenStackは、オペレーションやステータス情報を各サービス�
 controller# apt-get install rabbitmq-server
 ```
 
-#### 2-7-2 openstackユーザーの作成とパーミッションの設定
+### openstackユーザーの作成とパーミッションの設定
 
 RabbitMQにアクセスするためのユーザーとしてopenstackユーザーを作成し、必要なパーミッションを設定します。
 以下コマンドはRabbitMQのパスワードをpasswordに設定する例です。
@@ -539,7 +540,7 @@ controller# rabbitmqctl add_user openstack password
 controller# rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 ```
 
-#### 2-7-3 RabbitMQサービスのログを確認
+### RabbitMQサービスのログを確認
 
 + ログの確認
 
@@ -559,11 +560,11 @@ Server startup complete; 0 plugins started.
 
 ※新たなエラーが表示されなければ問題ありません。
 
-<!-- BREAK -->
+\clearpage
 
-### 2-8 環境変数設定ファイルの作成
+## 環境変数設定ファイルの作成
 
-#### 2-8-1 admin環境変数設定ファイルの作成
+### admin環境変数設定ファイルの作成
 
 adminユーザー用の環境変数設定ファイルを作成します。
 
@@ -580,7 +581,7 @@ export OS_IMAGE_API_VERSION=2
 export PS1='\u@\h \W(admin)\$ '
 ```
 
-#### 2-8-2 demo環境変数設定ファイルの作成
+### demo環境変数設定ファイルの作成
 
 demoユーザー用の環境変数設定ファイルを作成します。
 
@@ -597,9 +598,9 @@ export OS_IMAGE_API_VERSION=2
 export PS1='\u@\h \W(demo)\$ '
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 2-9 memcachedのインストールと設定
+## memcachedのインストールと設定
 
 コントローラーノードで認証機構のトークンをキャッシュするための用途でmemcachedをインストールします。
 
@@ -621,13 +622,13 @@ memcachedサービスを再起動します。
 controller# service memcached restart
 ```
 
-<!-- BREAK -->
+\clearpage
 
-## 3. Keystoneのインストールと設定（コントローラーノード）
+# Keystoneのインストールと設定（コントローラーノード）
 
 各サービス間の連携時に使用する認証サービスKeystoneのインストールと設定を行います。
 
-### 3-1 データベースを作成
+## データベースを作成
 
 MariaDBにKeystoneで使用するデータベースを作成しアクセス権を付与します。
 
@@ -642,7 +643,7 @@ EOF
 Enter password: ← MariaDBのrootパスワードpasswordを入力
 ```
 
-### 3-2 データベースの確認
+## データベースの確認
 
 MariaDBに keystoneユーザーでログインしデータベースの閲覧が可能であることを確認します。
 
@@ -662,9 +663,9 @@ MariaDB [(none)]> show databases;
 2 rows in set (0.00 sec)
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 3-3 パッケージのインストール
+## パッケージのインストール
 
 apt-getコマンドでkeystoneおよび必要なパッケージをインストールします。
 
@@ -672,7 +673,7 @@ apt-getコマンドでkeystoneおよび必要なパッケージをインスト�
 controller# apt-get install keystone
 ```
 
-### 3-4 Keystoneの設定変更
+## Keystoneの設定変更
 
 keystoneの設定ファイルを変更します。
 
@@ -695,15 +696,15 @@ provider = fernet          ← 追記
 controller# less /etc/keystone/keystone.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-### 3-5 データベースに展開
+### データベースに展開
 
 ```
 controller# su -s /bin/sh -c "keystone-manage db_sync" keystone
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 3-6 Fernet キーの初期化
+### Fernet キーの初期化
 
 keystone-manage コマンドで Fernet キーを初期化します。
 
@@ -712,7 +713,7 @@ controller# keystone-manage fernet_setup --keystone-user keystone --keystone-gro
 controller# keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
 ```
 
-### 3-7 Identityサービスのデプロイ
+### Identityサービスのデプロイ
 
 次のコマンドを実行してIdentityサービスをデプロイします。
 
@@ -724,7 +725,7 @@ controller# keystone-manage bootstrap --bootstrap-password password \
   --bootstrap-region-id RegionOne
 ```
 
-### 3-8 Apache Webサーバーの設定
+### Apache Webサーバーの設定
 
 + コントローラーノードの /etc/apache2/apache2.confに項目ServerNameを追加して、コントローラーノードのホスト名を設定します。
 
@@ -735,7 +736,7 @@ ServerName controller
 ...
 ```
 
-### 3-9 サービスの再起動と不要DBの削除
+## サービスの再起動と不要DBの削除
 
 + Apache Webサーバーを再起動します。
 
@@ -749,9 +750,9 @@ controller# service apache2 restart
 controller# rm /var/lib/keystone/keystone.db
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 3-10 サービスとAPIエンドポイントの作成
+## サービスとAPIエンドポイントの作成
 
 以下コマンドでサービスとAPIエンドポイントを設定します。
 
@@ -786,9 +787,9 @@ controller# openstack project create --domain default \
 +-------------+----------------------------------+
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 3-11 プロジェクトとユーザー、ロールの作成
+## プロジェクトとユーザー、ロールの作成
 
 + demoプロジェクトの作成
 
@@ -828,7 +829,7 @@ Repeat User Password:
 +---------------------+----------------------------------+
 ```
 
-<!-- BREAK -->
+\clearpage
 
 + userロールの作成
 
@@ -849,10 +850,10 @@ controller# openstack role create user
 ```
 controller# openstack role add --project demo --user demo user
 ```
-<!-- BREAK -->
+\clearpage
 
 
-### 3-12 Keystoneの動作確認
+## Keystoneの動作確認
 
 他のサービスをインストールする前に Keystone が正しく構築、設定されたか動作を検証します。
 
@@ -863,7 +864,7 @@ controller# unset OS_URL
 ```
 
 + セキュリティを確保するため、一時認証トークンメカニズムを無効化します。
-  + /etc/keystone/keystone-paste.iniを開き、[pipeline:public_api]と[pipeline:admin_api]と[pipeline:api_v3]セクション（訳者注:..のpipeline行）から、admin_token_authを削除します。
+    + /etc/keystone/keystone-paste.iniを開き、[pipeline:public_api]と[pipeline:admin_api]と[pipeline:api_v3]セクション（訳者注:..のpipeline行）から、admin_token_authを削除します。
 
 ```
 [pipeline:public_api]
@@ -876,7 +877,7 @@ pipeline = sizelimit url_normalize request_id build_auth_context token_auth json
 pipeline = sizelimit url_normalize request_id build_auth_context token_auth json_body ec2_extension_v3 s3_extension simple_cert_extension revoke_extension federation_extension oauth1_extension endpoint_filter_extension endpoint_policy_extension service_v3
 ```
 
-<!-- BREAK -->
+\clearpage
 
 動作確認のためadminおよびdemoテナントに対し認証トークンを要求します。
 admin、demoユーザーのパスワードを入力します。
@@ -901,11 +902,11 @@ Password:
 +------------+-----------------------------------------------------------------+
 ```
 
-<!-- BREAK -->
+\clearpage
 
-## 4. Glanceのインストールと設定
+# Glanceのインストールと設定
 
-### 4-1 データベースを作成
+## データベースを作成
 
 MariaDBに glance で使用するデータベースを作成し、アクセス権を付与します。
 
@@ -920,7 +921,7 @@ EOF
 Enter password: ← MariaDBのrootパスワードpasswordを入力
 ```
 
-### 4-2 データベースの確認
+## データベースの確認
 
 MariaDBに glance ユーザーでログインし、データベースの閲覧が可能であることを確認します。
 
@@ -940,13 +941,13 @@ MariaDB [(none)]> show databases;
 2 rows in set (0.00 sec)
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 4-3 ユーザー、サービス、APIエンドポイントの作成
+## ユーザー、サービス、APIエンドポイントの作成
 
 以下のコマンドで認証情報を読み込み、ImageサービスとAPIエンドポイントを設定します。
 
-+ 環境変数ファイルの読み込み
+### 環境変数ファイルの読み込み
 
 admin-openrcを読み込むと次のようにプロンプトが変化します。
 
@@ -955,7 +956,7 @@ controller# source admin-openrc
 controller ~(admin)#
 ```
 
-+ glanceユーザーの作成
+### glanceユーザーの作成
 
 ```
 controller# openstack user create --domain default --password-prompt glance
@@ -972,14 +973,14 @@ Repeat User Password: password
 +---------------------+----------------------------------+
 ```
 
-+ adminロールをglanceユーザーとserviceプロジェクトに追加
+### adminロールをglanceユーザーとserviceプロジェクトに追加
 
 ```
 controller# openstack role add --project service --user glance admin
 ```
-<!-- BREAK -->
+\clearpage
 
-+ glanceサービスの作成
+### glanceサービスの作成
 
 ```
 controller# openstack service create --name glance \
@@ -995,7 +996,7 @@ controller# openstack service create --name glance \
 +-------------+----------------------------------+
 ```
 
-+ APIエンドポイントの作成
+### APIエンドポイントの作成
 
 ```
 controller# openstack endpoint create --region RegionOne \
@@ -1006,7 +1007,7 @@ controller# openstack endpoint create --region RegionOne \
   image admin http://controller:9292
 ```
 
-### 4-4 Glanceのインストール
+## Glanceのインストール
 
 apt-getコマンドでglance パッケージをインストールします。
 
@@ -1014,9 +1015,9 @@ apt-getコマンドでglance パッケージをインストールします。
 controller# apt-get install glance
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 4-5 Glanceの設定変更
+## Glanceの設定変更
 
 Glanceの設定を行います。glance-api.conf、glance-registry.confともに、[keystone_authtoken]に追記した設定以外のパラメーターはコメントアウトします。
 
@@ -1057,7 +1058,7 @@ flavor = keystone          ← 追記
 controller# less /etc/glance/glance-api.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
 ```
 controller# vi /etc/glance/glance-registry.conf
@@ -1091,7 +1092,7 @@ flavor = keystone                ← 追記
 controller# less /etc/glance/glance-registry.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-### 4-6 データベースに展開
+### データベースに展開
 
 次のコマンドでglanceデータベースのセットアップを行います。
 
@@ -1101,9 +1102,9 @@ controller# su -s /bin/sh -c "glance-manage db_sync" glance
 
 ※ 非推奨を示すメッセージが出力されますが無視して構いません。
 
-<!-- BREAK -->
+\clearpage
 
-### 4-7 Glanceサービスの再起動
+### Glanceサービスの再起動
 
 設定を反映させるためGlanceサービスを再起動します。
 
@@ -1111,7 +1112,7 @@ controller# su -s /bin/sh -c "glance-manage db_sync" glance
 controller# service glance-registry restart && service glance-api restart
 ```
 
-### 4-8 ログの確認と使用しないデータベースファイルの削除
+### ログの確認と使用しないデータベースファイルの削除
 
 サービスの再起動後、ログを参照しGlance RegistryとGlance APIサービスでエラーが起きていないことを確認します。
 
@@ -1126,11 +1127,11 @@ controller# tailf /var/log/glance/glance-registry.log
 controller# rm /var/lib/glance/glance.sqlite
 ```
 
-### 4-9 イメージの取得と登録
+## イメージの取得と登録
 
 Glanceへインスタンス用の仮想マシンイメージを登録します。ここでは、OpenStackのテスト環境に役立つ軽量なLinuxイメージ CirrOS を登録します。
 
-#### 4-9-1 イメージの取得
+### イメージの取得
 
 CirrOSのWebサイトより仮想マシンイメージをダウンロードします。
 
@@ -1138,7 +1139,7 @@ CirrOSのWebサイトより仮想マシンイメージをダウンロードし�
 controller# wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
 ```
 
-#### 4-9-2 イメージを登録
+### イメージを登録
 
 ダウンロードした仮想マシンイメージをGlanceに登録します。
 
@@ -1173,7 +1174,7 @@ controller# openstack image create "cirros" \
 +------------------+------------------------------------------------------+
 ```
 
-#### 4-9-3 イメージの登録を確認
+### イメージの登録を確認
 
 仮想マシンイメージが正しく登録されたか確認します。
 
@@ -1186,11 +1187,11 @@ controller# openstack image list
 +--------------------------------------+--------+--------+
 ```
 
-<!-- BREAK -->
+\clearpage
 
-## 5. Novaのインストールと設定（コントローラーノード）
+# Novaのインストールと設定（コントローラーノード）
 
-### 5-1 データベースを作成
+## データベースを作成
 
 MariaDBにデータベースnovaを作成します。
 
@@ -1210,7 +1211,7 @@ EOF
 Enter password:           ← MariaDBのrootパスワードpasswordを入力
 ```
 
-### 5-2 データベースの確認
+## データベースの確認
 
 MariaDBにnovaユーザーでログインし、データベースの閲覧が可能であることを確認します。
 
@@ -1231,19 +1232,19 @@ MariaDB [(none)]> show databases;
 3 rows in set (0.00 sec)
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 5-3 ユーザーとサービス、APIエンドポイントの作成
+## ユーザーとサービス、APIエンドポイントの作成
 
 以下コマンドで認証情報を読み込んだあと、サービスとAPIエンドポイントを設定します。
 
-+ 環境変数ファイルの読み込み
+### 環境変数ファイルの読み込み
 
 ```
 controller# source admin-openrc
 ```
 
-+ novaユーザーの作成
+### novaユーザーの作成
 
 ```
 controller# openstack user create --domain default --password-prompt nova
@@ -1260,15 +1261,15 @@ Repeat User Password: password
 +---------------------+----------------------------------+
 ```
 
-+ novaユーザーをadminロールに追加
+### novaユーザーをadminロールに追加
 
 ```
 controller# openstack role add --project service --user nova admin
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ novaサービスの作成
+### novaサービスの作成
 
 ```
 controller# openstack service create --name nova \
@@ -1285,7 +1286,7 @@ controller# openstack service create --name nova \
 +-------------+----------------------------------+
 ```
 
-+ ComputeサービスのAPIエンドポイントを作成
+### ComputeサービスのAPIエンドポイントを作成
 
 ```
 controller# openstack endpoint create --region RegionOne \
@@ -1296,9 +1297,9 @@ controller# openstack endpoint create --region RegionOne \
   compute admin http://controller:8774/v2.1/%\(tenant_id\)s
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 5-4 パッケージのインストール
+## パッケージのインストール
 
 apt-getコマンドでNova関連のパッケージをインストールします。
 
@@ -1307,7 +1308,7 @@ controller# apt-get install nova-api nova-conductor nova-consoleauth \
   nova-novncproxy nova-scheduler
 ```
 
-### 5-5 Novaの設定変更
+## Novaの設定変更
 
 nova.confの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -1337,7 +1338,7 @@ api_servers = http://controller:9292
 (次のページに続きます→)
 ```
 
-<!-- BREAK -->
+\clearpage
 
 ```
 (→前のページからの続き)
@@ -1373,9 +1374,9 @@ lock_path = /var/lib/nova/tmp
 controller# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 5-6 データベースに展開
+### データベースに展開
 
 次のコマンドでnovaデータベースのセットアップを行います。
 
@@ -1384,7 +1385,7 @@ controller# su -s /bin/sh -c "nova-manage api_db sync" nova
 controller# su -s /bin/sh -c "nova-manage db sync" nova
 ```
 
-### 5-7 Novaサービスの再起動
+### Novaサービスの再起動
 
 設定を反映させるため、Novaのサービスを再起動します。
 
@@ -1393,7 +1394,7 @@ controller# service nova-api restart && service nova-consoleauth restart && serv
 service nova-conductor restart && service nova-novncproxy restart
 ```
 
-### 5-8 不要なデータベースファイルの削除
+### 不要なデータベースファイルの削除
 
 データベースはMariaDBを使用するため、不要なSQLiteファイルを削除します。
 
@@ -1401,19 +1402,19 @@ service nova-conductor restart && service nova-novncproxy restart
 controller# rm /var/lib/nova/nova.sqlite
 ```
 
-<!-- BREAK -->
+\clearpage
 
-## 6. Nova Computeのインストールと設定（コンピュートノード）
+# Nova Computeのインストールと設定（コンピュートノード）
 
 ここまでコントローラーノードの環境構築を行ってきましたが、ここでコンピュートノードに切り替えて設定を行います。
 
-### 6-1 パッケージのインストール
+## パッケージのインストール
 
 ```
 compute# apt-get install nova-compute
 ```
 
-### 6-2 Novaの設定を変更
+## Novaの設定を変更
 
 nova.confの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -1445,7 +1446,7 @@ api_servers = http://controller:9292
 (次のページに続きます→)
 ```
 
-<!-- BREAK -->
+\clearpage
 
 ```
 (→前のページからの続き)
@@ -1473,7 +1474,7 @@ lock_path = /var/lib/nova/tmp
 compute# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
 まず次のコマンドを実行し、コンピュートノードでLinux KVMが動作可能であることを確認します。コマンド結果が1以上の場合は、CPU仮想化支援機能がサポートされています。
 もしこのコマンド結果が0の場合は仮想化支援機能がサポートされていないか、設定が有効化されていないので、libvirtでKVMの代わりにQEMUを使用します。後述の/etc/nova/nova-compute.confの設定でvirt_type = qemu を設定します。
@@ -1493,7 +1494,7 @@ compute# vi /etc/nova/nova-compute.conf
 virt_type = kvm
 ```
 
-### 6-3 Novaコンピュートサービスの再起動
+## Novaコンピュートサービスの再起動
 
 設定を反映させるため、Nova-Computeサービスを再起動します。
 
@@ -1501,12 +1502,11 @@ virt_type = kvm
 compute# service nova-compute restart
 ```
 
-nova-computeサービスが起動しない場合は/var/log/nova/nova-compute.logを確認してください。`AMQP server on controller:5672 is unreachable`のようなメッセージが出る場合はcontrollerの
+nova-computeサービスが起動しない場合は/var/log/nova/nova-compute.logを確認してください。`AMQP server on controller:5672 is unreachable`のようなメッセージが出る場合はcontrollerのRabbitMQサービスが起動しているか、Bind IPアドレスやポートは適切かを確認します。
 
+\clearpage
 
-<!-- BREAK -->
-
-### 6-4 コントローラーノードとの疎通確認
+## コントローラーノードとの疎通確認
 
 疎通確認はコントローラーノード上にて、admin環境変数設定ファイルを読み込んで行います。
 
@@ -1514,7 +1514,7 @@ nova-computeサービスが起動しない場合は/var/log/nova/nova-compute.lo
 controller# source admin-openrc
 ```
 
-#### 6-4-1 ホストリストの確認
+### ホストリストの確認
 
 コントローラーノードとコンピュートノードが相互に接続できているか確認します。もし、StateがXXXになっているサービスがある場合は、該当のサービスのログを確認して対処してください。
 
@@ -1532,7 +1532,7 @@ controller# openstack compute service list -c Binary -c Host -c State
 
 ※一覧にcomputeが表示されていれば問題ありません。Stateがupでないサービスがある場合は-cオプションを外して確認します。
 
-#### 6-4-2 ハイパーバイザの確認
+### ハイパーバイザの確認
 
 コントローラーノードよりコンピュートノードのハイパーバイザが取得可能か確認します。
 
@@ -1547,11 +1547,11 @@ controller# openstack hypervisor list
 
 ※Hypervisor一覧にcomputeが表示されていれば問題ありません。
 
-<!-- BREAK -->
+\clearpage
 
-## 7. Neutronのインストール・設定（コントローラーノード）
+# Neutronのインストール・設定（コントローラーノード）
 
-### 7-1 データベースを作成
+## データベースを作成
 
 MariaDBにデータベースneutronを作成し、アクセス権を付与します。
 
@@ -1566,7 +1566,7 @@ EOF
 Enter password: ←MariaDBのrootパスワードpasswordを入力
 ```
 
-### 7-2 データベースの確認
+## データベースの確認
 
 MariaDBにneutronユーザーでログインし、データベースの閲覧が可能か確認します。
 
@@ -1588,19 +1588,19 @@ MariaDB [(none)]> show databases;
 
 ※ユーザーneutronでログイン可能でデータベースが閲覧可能なら問題ありません。
 
-<!-- BREAK -->
+\clearpage
 
-### 7-3 neutronユーザーとサービス、APIエンドポイントの作成
+## neutronユーザーとサービス、APIエンドポイントの作成
 
 以下コマンドで認証情報を読み込んだあと、neutronサービスの作成とAPIエンドポイントを設定します。
 
-+ 環境変数ファイルの読み込み
+### 環境変数ファイルの読み込み
 
 ```
 controller# source admin-openrc
 ```
 
-+ neutronユーザーの作成
+### neutronユーザーの作成
 
 ```
 controller# openstack user create --domain default --password-prompt neutron
@@ -1617,15 +1617,15 @@ Repeat User Password: password
 +---------------------+----------------------------------+
 ```
 
-+ neutronユーザーをadminロールに追加
+### neutronユーザーをadminロールに追加
 
 ```
 controller# openstack role add --project service --user neutron admin
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ neutronサービスの作成
+### neutronサービスの作成
 
 ```
 controller# openstack service create --name neutron \
@@ -1641,7 +1641,7 @@ controller# openstack service create --name neutron \
 +-------------+----------------------------------+
 ```
 
-+ neutronサービスのAPIエンドポイントを作成
+### neutronサービスのAPIエンドポイントを作成
 
 ```
 controller# openstack endpoint create --region RegionOne \
@@ -1652,7 +1652,7 @@ controller# openstack endpoint create --region RegionOne \
   network admin http://controller:9696
 ```
 
-### 7-4 パッケージのインストール
+## パッケージのインストール
 
 本書ではネットワークの構成は公式マニュアルの「[Networking Option 2: Self-service networks](http://docs.openstack.org/newton/install-guide-ubuntu/neutron-controller-install-option2.html)」の方法で構築する例を示します。
 
@@ -1662,11 +1662,11 @@ controller# apt-get install neutron-server neutron-plugin-ml2 \
   neutron-metadata-agent
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 7-5 Neutronコンポーネントの設定
+## Neutronコンポーネントの設定
 
-+ Neutronサーバーの設定
+### Neutronサーバーの設定
 
 neutron.confの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -1693,7 +1693,7 @@ rabbit_password = password
 (次のページに続きます→)
 ```
 
-<!-- BREAK -->
+\clearpage
 
 ```
 (→前のページからの続き)
@@ -1734,9 +1734,9 @@ password = password
 controller# less /etc/neutron/neutron.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ ML2プラグインの設定
+### ML2プラグインの設定
 
 ml2_conf.iniの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -1770,9 +1770,9 @@ enable_ipset = True
 controller# less /etc/neutron/plugins/ml2/ml2_conf.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ Linuxブリッジエージェントの設定
+### Linuxブリッジエージェントの設定
 
 パブリックネットワークに接続している側のNICを指定します。本書ではens3を指定します。
 今回の構成の場合は「flat_networksで指定した値:パブリックネットワークに接続している側のNIC」を指定する必要があるので、「provider:ens3」と設定します。
@@ -1809,12 +1809,13 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 controller# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
 #### ※ ML2プラグインのl2populationについて
-OpenStack Mitaka以降のバージョンの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。 <br />
-従って、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。<br />
-<br />
+
+OpenStack Mitaka以降のバージョンの公式手順書では、ML2プラグインのmechanism_driversとしてlinuxbridgeとl2populationが指定されています。l2populationが有効だとこれまでの動きと異なり、インスタンスが起動してもネットワークが有効化されるまで通信ができません。つまりNeutronネットワークを構築してルーターのパブリック側のIPアドレス宛にPingコマンドを実行して確認できても疎通ができません。このネットワーク有効化の有無についてメッセージキューサービスが監視して制御しています。
+従って、これまでのバージョン以上にメッセージキューサービス（本例や公式手順ではしばしばRabbitMQが使用されます）が確実に動作している必要があります。このような仕組みが導入されたのは、不要なパケットがネットワーク内に流れ続けないようにするためです。
+
 ただし、弊社でESXi仮想マシン環境に構築したOpenStack環境においてl2populationが有効化されていると想定通り動かないという事象が発生することを確認してます。その他のハイパーバイザーでは確認していませんが、ネットワーク通信に支障が起きる場合はl2populationをオフに設定すると改善される場合があります。修正箇所は次の通りです。
 
 + controllerの/etc/neutron/plugins/ml2/ml2_conf.iniの設定変更
@@ -1839,9 +1840,9 @@ l2_population = false
 
 設定変更後はl2populationの設定変更を反映させるため、controllerとcomputeノードのNeutron関連サービスを再起動するか、システムを再起動してください。
 
-<!-- BREAK -->
+\clearpage
 
-+ Layer-3エージェントの設定
+###S Layer-3エージェントの設定
 
 external_network_bridgeは単一のエージェントで複数の外部ネットワークを有効にするには値を指定してはならないため、値を空白にします。
 
@@ -1854,7 +1855,7 @@ interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
 external_network_bridge =
 ```
 
-+ DHCPエージェントの設定
+### DHCPエージェントの設定
 
 ```
 controller# vi /etc/neutron/dhcp_agent.ini
@@ -1866,9 +1867,9 @@ dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
 enable_isolated_metadata = True
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ Metadataエージェントの設定
+### Metadataエージェントの設定
 
 インスタンスのメタデータサービスを提供するMetadataエージェントを設定します。
 
@@ -1891,9 +1892,9 @@ controller# openssl rand -hex 10
 controller# less /etc/neutron/metadata_agent.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 7-6 Novaの設定を変更
+## Novaの設定を変更
 
 Novaの設定ファイルにNeutronの設定を追記します。
 
@@ -1923,7 +1924,7 @@ METADATA_SECRETはMetadataエージェントで指定した値に置き換えま
 controller# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-### 7-7 データベースに展開
+## データベースに展開
 
 コマンドを実行して、エラーが発生せずに完了することを確認します。
 
@@ -1932,9 +1933,9 @@ controller# su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutr
   --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 7-8 コントローラーノードのNeutronと関連サービスの再起動
+## コントローラーノードのNeutronと関連サービスの再起動
 
 設定を反映させるため、コントローラーノードの関連サービスを再起動します。
 まずNova APIサービスを再起動します。
@@ -1953,7 +1954,7 @@ controller# service neutron-server restart && \
  service neutron-l3-agent restart
 ```
 
-### 7-9 ログの確認
+## ログの確認
 
 ログを確認して、エラーが出力されていないことを確認します。
 
@@ -1964,27 +1965,27 @@ controller# tailf /var/log/neutron/neutron-metadata-agent.log
 controller# tailf /var/log/neutron/neutron-linuxbridge-agent.log
 ```
 
-### 7-10 使用しないデータベースファイルを削除
+## 使用しないデータベースファイルを削除
 
 ```
 controller# rm /var/lib/neutron/neutron.sqlite
 ```
 
-<!-- BREAK -->
+\clearpage
 
-## 8. Neutronのインストール・設定（コンピュートノード）
+# Neutronのインストール・設定（コンピュートノード）
 
 次にコンピュートノードの設定を行います。
 
-### 8-1 パッケージのインストール
+## パッケージのインストール
 
 ```
 compute# apt-get install neutron-linuxbridge-agent
 ```
 
-### 8-2 設定の変更
+## 設定の変更
 
-+ Neutronの設定
+### Neutronの設定
 
 neutron.confの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -2006,7 +2007,7 @@ rabbit_password = password
 (次のページに続きます→)
 ```
 
-<!-- BREAK -->
+\clearpage
 
 ```
 (→前のページからの続き)
@@ -2036,9 +2037,9 @@ password = password
 compute# less /etc/neutron/neutron.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-+ Linuxブリッジエージェントの設定
+### Linuxブリッジエージェントの設定
 
 linuxbridge_agent.iniの設定を行います。
 すでにいくつかの設定は行われているので各セクションに同じように設定がされているか、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
@@ -2071,9 +2072,9 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 compute# less /etc/neutron/plugins/ml2/linuxbridge_agent.ini | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 8-3 コンピュートノードのネットワーク設定
+## コンピュートノードのネットワーク設定
 
 Novaの設定ファイルの内容をNeutronを利用するように変更します。
 
@@ -2099,7 +2100,7 @@ password = password  ←neutronユーザーのパスワード
 compute# less /etc/nova/nova.conf | grep -v "^\s*$" | grep -v "^\s*#"
 ```
 
-### 8-4 コンピュートノードのNeutronと関連サービスを再起動
+## コンピュートノードのNeutronと関連サービスを再起動
 
 ネットワーク設定を反映させるため、コンピュートノードのNeutronと関連のサービスを再起動します。
 
@@ -2108,9 +2109,9 @@ compute# service nova-compute restart
 compute# service neutron-linuxbridge-agent restart
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 8-5 ログの確認
+## ログの確認
 
 エラーが出ていないかログを確認します。
 
@@ -2119,7 +2120,7 @@ compute# tailf /var/log/nova/nova-compute.log
 compute# tailf /var/log/neutron/neutron-linuxbridge-agent.log
 ```
 
-### 8-6 Neutronサービスの動作を確認
+## Neutronサービスの動作を確認
 
 `neutron agent-list`コマンドを実行してNeutronエージェントが正しく認識されており、稼働していることを確認します。
 
@@ -2139,13 +2140,13 @@ controller# neutron agent-list -c host -c alive -c binary
 
  ※コントローラーとコンピュートで追加され、neutron-linuxbridge-agentが正常に稼働していることが確認できれば問題ありません。念のためログも確認してください。
 
-<!-- BREAK -->
+\clearpage
 
-## 9. Dashboardのインストールと確認（コントローラーノード）
+# Dashboardのインストールと確認（コントローラーノード）
 
 クライアントマシンからブラウザーでOpenStack環境を操作可能なWebインターフェイスをインストールします。
 
-### 9-1 パッケージのインストール
+## パッケージのインストール
 
 コントローラーノードにDashboardをインストールします。
 
@@ -2153,15 +2154,15 @@ controller# neutron agent-list -c host -c alive -c binary
 controller# apt-get install openstack-dashboard
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 9-2 Dashboardの設定を変更
+## Dashboardの設定を変更
 
 インストールしたDashboardの設定を行います。
 すでにいくつかの設定は行われているので同じように設定がされているか確認し、されていない場合は設定を追加してください。言及していない設定はそのままで構いません。
 
 ```
-controller# vi /etc/openstack-dashboard/local_settings.py 
+controller# vi /etc/openstack-dashboard/local_settings.py
 ...
 WEBROOT = '/horizon/'
 LOGIN_URL = WEBROOT + 'auth/login/'
@@ -2200,9 +2201,9 @@ controller# less /etc/openstack-dashboard/local_settings.py  | grep -v "^\s*$" |
 controller# service apache2 restart
 ```
 
-<!-- BREAK -->
+\clearpage
 
-### 9-3 Dashboardにアクセス
+## Dashboardにアクセス
 
 コントローラーノードとネットワーク的に接続されているマシンからブラウザで以下URLに接続してOpenStackのログイン画面が表示されるか確認します。
 
@@ -2216,9 +2217,9 @@ http://controller/horizon/
 
 
 
-<!-- BREAK -->
+\clearpage
 
-### 9-4 Externalネットワークの作成
+## Externalネットワークの作成
 
 OpenStack Dashboardにadminユーザーでログインして、Externalネットワークを作成します。
 次のようにOpenStack Dashboardを操作して、Externalネットワークを作成してください。
@@ -2254,9 +2255,9 @@ OpenStack Dashboardにadminユーザーでログインして、Externalネット
 
 IPアドレス割当プールはネットワークアドレスで定義したネットワーク範囲全てを割り当てても良い場合は定義する必要はありません。
 
-<!-- BREAK -->
+\clearpage
 
-### 9-5 インスタンスネットワークの作成
+## インスタンスネットワークの作成
 
 OpenStack Dashboardにdemoユーザーでログインして、インスタンスネットワークを作成します。
 
@@ -2268,8 +2269,8 @@ OpenStack Dashboardにdemoユーザーでログインして、インスタンス
 
 次のようにOpenStack Dashboardを操作して、インスタンスネットワークを作成してください。
 
-1.OpenStack Dashboardにdemoユーザーでログイン
-2.「プロジェクト > ネットワーク > ネットワーク」でユーザーネットワークの作成
+1. OpenStack Dashboardにdemoユーザーでログイン
+2. 「プロジェクト > ネットワーク > ネットワーク」でユーザーネットワークの作成
 
 | 項目 | 設定 |
 |-----|----- |
@@ -2292,7 +2293,7 @@ OpenStack Dashboardにdemoユーザーでログインして、インスタンス
 
 DNSサーバーを複数指定したい場合は1行毎に記述します。IPアドレス割当プールはネットワークアドレスで定義したネットワーク範囲全てを割り当てても良い場合は定義する必要はありません。
 
-3.「プロジェクト > ネットワーク > ルーター」でルーターを作成
+3. 「プロジェクト > ネットワーク > ルーター」でルーターを作成
 
 | 項目 | 設定 |
 |-----|----- |
@@ -2300,90 +2301,90 @@ DNSサーバーを複数指定したい場合は1行毎に記述します。IP�
 | 管理状態 | UP |
 | 外部ネットワーク | external-net |
 
-4.「プロジェクト > ネットワーク > ルーター」で作成した「myrouter」をクリックして、インターフェイスを追加
+4. 「プロジェクト > ネットワーク > ルーター」で作成した「myrouter」をクリックして、インターフェイスを追加
 
 | 項目 | 設定 |
 |-----|----- |
 | サブネット | user-net |
 | IPアドレス | 未定義 |
 
-<!-- BREAK -->
+\clearpage
 
-### 9-6 フレーバーの設定
+## フレーバーの設定
 
 フレーバーはインスタンスに設定する性能を定義するものです。従来のバージョンでは自動生成されていましたが、Newtonではデフォルトでフレーバーは定義されていません。
 
-1.OpenStack Dashboardにadminユーザーでログイン<br>
-2.「管理 > システム > フレーバー」を選択<br>
-3.「フレーバーの作成」ボタンを押下<br>
-4.フレーバー名、仮想CPU数、メモリー、ストレージサイズを定義<br>
-5.「フレーバーの作成」ボタンを押下<br>
+#. OpenStack Dashboardにadminユーザーでログイン
+#. 「管理 > システム > フレーバー」を選択
+#. 「フレーバーの作成」ボタンを押下
+#. フレーバー名、仮想CPU数、メモリー、ストレージサイズを定義
+#. 「フレーバーの作成」ボタンを押下
 
 CirrOSを動かすだけであれば、1vCPU,64MBメモリー,1GBストレージあれば充分です。
 Ubuntuを動かす場合は、1vCPU,1GBメモリー,4GBストレージ以上のスペックが必要です。
 
-<!-- BREAK -->
+\clearpage
 
-### 9-7 セキュリティグループの設定
+## セキュリティグループの設定
 
 OpenStackの上で動かすインスタンスのファイアウォール設定は、セキュリティグループで行います。ログイン後、次の手順でセキュリティグループを設定できます。
 
-1.OpenStack Dashboardにdemoユーザーでログイン<br>
-2.「プロジェクト > コンピュート > アクセスとセキュリティ」を選択<br>
-3.「ルールの管理」ボタンを押下<br>
-4.「ルールの追加」で許可するルールを定義<br>
-5.「追加」ボタンを押下<br>
+#. OpenStack Dashboardにdemoユーザーでログイン
+#. 「プロジェクト > コンピュート > アクセスとセキュリティ」を選択
+#. 「ルールの管理」ボタンを押下
+#. 「ルールの追加」で許可するルールを定義
+#. 「追加」ボタンを押下
 
 インスタンスに対してPingを実行したい場合はルールとしてすべてのICMPを、インスタンスにSSH接続したい場合はSSHをルールとしてセキュリティグループに追加してください。
 
 セキュリティーグループは複数作成できます。作成したセキュリティーグループをインスタンスを起動する際に選択することで、セキュリティグループで定義したポートを解放したり、拒否したり、接続できるクライアントを制限することができます。
 
-<!-- BREAK -->
+\clearpage
 
-### 9-8 キーペアの作成
+## キーペアの作成
 
 OpenStackではインスタンスへのアクセスはデフォルトで公開鍵認証方式で行います。次の手順でキーペアを作成できます。
 
-1.OpenStack Dashboardにdemoユーザーでログイン<br>
-2.「プロジェクト > コンピュート > アクセスとセキュリティ」をクリック<br>
-3.「キーペア」タブをクリック<br>
-4.「キーペアの作成」ボタンを押下<br>
-5.キーペア名を入力<br>
-6.「キーペアの作成」ボタンを押下<br>
-7.キーペア（拡張子:pem）ファイルをダウンロード<br>
+#. OpenStack Dashboardにdemoユーザーでログイン
+#. 「プロジェクト > コンピュート > アクセスとセキュリティ」をクリック
+#. 「キーペア」タブをクリック
+#. 「キーペアの作成」ボタンを押下
+#. キーペア名を入力
+#. 「キーペアの作成」ボタンを押下
+#. キーペア（拡張子:pem）ファイルをダウンロード
 
-<!-- BREAK -->
+\clearpage
 
-### 9-9 インスタンスの起動
+## インスタンスの起動
 
 前の手順でGlanceにCirrOSイメージを登録していますので、早速構築したOpenStack環境上でインスタンスを起動してみましょう。
 
-1.OpenStack Dashboardにdemoユーザーでログイン<br>
-2.「プロジェクト > コンピュート > イメージ」をクリック<br>
-3.イメージ一覧から起動するOSイメージを選び、「インスタンスの起動」ボタンを押下<br>
-4.「インスタンスの起動」詳細タブで起動するインスタンス名、フレーバー、インスタンス数を設定<br>
-5.アクセスとセキュリティタブで割り当てるキーペア、セキュリティーグループを設定<br>
-6.ネットワークタブで割り当てるネットワークを設定<br>
-7.作成後タブで必要に応じてユーザーデータの入力（オプション）<br>
-8.高度な設定タブでパーティションなどの構成を設定（オプション）<br>
-9.右下の「起動」ボタンを押下<br>
+#. OpenStack Dashboardにdemoユーザーでログイン
+#. 「プロジェクト > コンピュート > イメージ」をクリック
+#. イメージ一覧から起動するOSイメージを選び、「インスタンスの起動」ボタンを押下
+#. 「インスタンスの起動」詳細タブで起動するインスタンス名、フレーバー、インスタンス数を設定
+#. アクセスとセキュリティタブで割り当てるキーペア、セキュリティーグループを設定
+#. ネットワークタブで割り当てるネットワークを設定
+#. 作成後タブで必要に応じてユーザーデータの入力（オプション）
+#. 高度な設定タブでパーティションなどの構成を設定（オプション）
+#. 右下の「起動」ボタンを押下
 
-<!-- BREAK -->
+\clearpage
 
-### 9-10 Floating IPの設定
+## Floating IPの設定
 
 起動したインスタンスにFloating IPアドレスを設定することで、Dashboardのコンソール以外からインスタンスにアクセスできるようになります。インスタンスにFloating IPを割り当てるには次の手順で行います。
 
-1.OpenStack Dashboardにdemoユーザーでログイン<br>
-2.「プロジェクト > コンピュート > インスタンス」をクリック<br>
-3.インスタンスの一覧から割り当てるインスタンスをクリック<br>
-4.アクションメニューから「Floating IPの割り当て」をクリック<br>
-5.「Floating IP割り当ての管理」画面のIPアドレスで「+」ボタンをクリック<br>
-6.右下の「IPの確保」ボタンをクリック<br>
-7.割り当てるIPアドレスとインスタンスを選択して右下の「割り当て」ボタンをクリック<br>
+#. OpenStack Dashboardにdemoユーザーでログイン
+#. 「プロジェクト > コンピュート > インスタンス」をクリック
+#. インスタンスの一覧から割り当てるインスタンスをクリック
+#. アクションメニューから「Floating IPの割り当て」をクリック
+#. 「Floating IP割り当ての管理」画面のIPアドレスで「+」ボタンをクリック
+#. 右下の「IPの確保」ボタンをクリック
+#. 割り当てるIPアドレスとインスタンスを選択して右下の「割り当て」ボタンをクリック
 
 
-### 9-11 インスタンスへのアクセス
+## インスタンスへのアクセス
 
 Floating IPを割り当てて、かつセキュリティグループの設定を適切に行っていれば、リモートアクセスできるようになります。セキュリティーグループでSSHを許可した場合、端末からSSH接続が可能になります（下記は実行例）。
 
