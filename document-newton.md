@@ -1,7 +1,7 @@
 ---
 documentclass: ltjsarticle
 title: OpenStack 構築手順書 Newton版
-date: 0.9.0-3 (2017/09/05)
+date: 0.9.0-3 (2017/09/06)
 author: 日本仮想化技術
 toc: yes
 output:
@@ -20,7 +20,7 @@ header-includes:
 |:---|:---|:---|
 |0.9.0|2016/10/25|Newton版執筆開始|
 |0.9.0-2|2016/11/04|軽微な修正|
-|0.9.0-3|2017/09/05|軽微な修正|
+|0.9.0-3|2017/09/06|軽微な修正|
 
 ```
 筆者注:
@@ -1842,7 +1842,7 @@ l2_population = false
 
 \clearpage
 
-###S Layer-3エージェントの設定
+### Layer-3エージェントの設定
 
 external_network_bridgeは単一のエージェントで複数の外部ネットワークを有効にするには値を指定してはならないため、値を空白にします。
 
